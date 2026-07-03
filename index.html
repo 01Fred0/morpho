@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MorphoHDL: a minimalistic language for growing circuits</title>
+    <script src="third_party/marked/marked.min.js"></script>
+    <script type="module" src="js/article.js"></script>
+    <link rel="preload" href="article.md" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="tiny_morpho.py" as="fetch" crossorigin="anonymous">
+    <!-- PrismJS syntax highlighting (Tomorrow theme + core + Python support) -->
+    <link rel="stylesheet" href="third_party/prism/prism-tomorrow.min.css">
+
+    <script src="js/swissgl.js"></script>
+    <link rel="modulepreload" href="js/viewer.js">
+    <link rel="modulepreload" href="js/utils.js">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <section class="hero-section">
+        <div id="hero-canvas-container" class="hero-canvas-container"></div>
+        <div class="hero-overlay">
+            <div class="hero-nav">
+                <button id="btn-hero-prev" class="nav-btn">&larr;</button>
+                <div class="hero-info">
+                    <h2 id="hero-title" class="hero-title"></h2>
+                    <p id="hero-desc" class="hero-desc"></p>
+                </div>
+                <div id="nav-next-wrapper" class="nav-next-wrapper">
+                    <button id="btn-hero-next" class="nav-btn">&rarr;</button>
+                    <div id="hero-counter" class="hero-counter"></div>
+                </div>
+            </div>
+            <div class="hero-controls">
+                <select id="select-hero-method" class="control-btn">
+                    <option value="bfs" selected>BFS</option>
+                    <option value="largest">Largest</option>
+                </select>
+                <button id="btn-hero-play" class="control-btn">Pause</button>
+                <button id="btn-hero-expand" class="control-btn">Re-grow</button>
+                <a id="btn-hero-explore" class="control-btn explore-cta-btn" target="_blank" rel="noopener">Explore
+                    ➜</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="article-layout">
+        <main>
+            <div id="article-content">Loading article...</div>
+        </main>
+        <aside class="toc-sidebar">
+            <div class="toc-title">On this page</div>
+            <div id="toc-content"></div>
+        </aside>
+    </div>
+
+    <!-- Mobile Table of Contents Toggle -->
+    <button id="btn-toc-toggle" class="btn-toc-toggle" aria-label="Toggle Table of Contents">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Modal for Growth View -->
+    <div id="growth-modal" class="growth-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="btn-modal-close">&times;</button>
+        </div>
+    </div>
+
+</body>
+
+</html>

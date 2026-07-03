@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Morpho Minimal Demo</title>
+    <script src="js/swissgl.js"></script>
+    <link rel="stylesheet" href="third_party/prism/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="explorer-app">
+    <div id="sidebar">
+        <div id="sidebar-title">Morpho HDL Source</div>
+            <div class="code-editor-container">
+                <pre id="code-highlight-backdrop" class="language-python"><code id="code-highlight-content"></code></pre>
+                <textarea id="code-editor" wrap="off" spellcheck="false"></textarea>
+            </div>
+            
+            <div id="compiler-controls" class="demo-section">
+                <div class="demo-row">
+                    <label for="input-design-preset">Design (Root):</label>
+                    <input type="text" id="input-design-preset" class="demo-input" placeholder="e.g. ripple_adder(32, 32, 1)">
+                    <select id="select-design-preset" class="demo-select preset-select">
+                        <option value="" disabled selected>Presets...</option>
+                    </select>
+                </div>
+                <button id="btn-compile" class="demo-btn btn-primary">Compile & Run</button>
+                <div id="compile-error"></div>
+            </div>
+
+            <div id="simulation-controls" class="demo-section">
+                <div class="demo-section-title">Layout & Simulation</div>
+                
+                <div class="demo-group">
+                    <button id="btn-auto-expand" title="Play Auto-Expand" class="demo-btn">Auto</button>
+                    <button id="btn-expand" title="Step Layout" class="demo-btn">Step</button>
+                    <button id="btn-toggle" title="Pause/Resume Layout" class="demo-btn">Pause</button>
+                    <button id="btn-reset" title="Reset Layout" class="demo-btn">Reset</button>
+                </div>
+
+                <div class="demo-row">
+                    <label for="range-speed">Speed:</label>
+                    <input type="range" id="range-speed" class="demo-range" min="1" max="200" step="1" value="50">
+                    <span id="val-speed">50%/s</span>
+                </div>
+
+                <div class="demo-group">
+                    <div class="demo-row">
+                        <label for="select-method">Method:</label>
+                        <select id="select-method" class="demo-select">
+                            <option value="bfs" selected>BFS</option>
+                            <option value="largest">Heap</option>
+                        </select>
+                    </div>
+                    <div class="demo-row">
+                        <label for="select-visibility">Show:</label>
+                        <select id="select-visibility" class="demo-select">
+                            <option value="both">Both</option>
+                            <option value="nodes">Nodes</option>
+                            <option value="wires">Wires</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="btn-simulate" class="demo-btn btn-accent">Run Logic Simulation</button>
+            </div>
+
+            <div id="tree-resizer"></div>
+
+            <div id="tree-section">
+                <div class="demo-section-title">Design Hierarchy</div>
+                <div id="cell-tree"></div>
+            </div>
+        </div>
+        <div id="sidebar-resizer"></div>
+        <div id="main-container">
+            <div id="controls">
+                <span class="explorer-title">MORPHOHDL LAYOUT EXPLORER</span>
+                <div class="explorer-actions">
+                    <span id="stats"></span>
+                    <button id="btn-export-json" class="demo-btn">Export netlist.json</button>
+                    <button id="btn-export-mask" class="demo-btn">Export mask.json</button>
+                </div>
+            </div>
+            <div id="canvas-container">
+            <canvas id="gl-canvas"></canvas>
+            <canvas id="canvas"></canvas>
+            <div id="node-tooltip"></div>
+        </div>
+    </div>
+ 
+    <script type="module" src="js/demo.js"></script>
+</body>
+</html>

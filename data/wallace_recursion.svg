@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" width="100%" height="100%">
+  <defs>
+    <style>
+      text {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .title {
+        font-size: 18px;
+        font-weight: 600;
+        fill: #F8FAFC;
+      }
+      .subtitle {
+        font-size: 12px;
+        fill: #94A3B8;
+      }
+      .bracket {
+        stroke: #64748B;
+        stroke-width: 1.5;
+        fill: none;
+      }
+      .grid-line {
+        stroke: #344259ff;
+        stroke-width: 1;
+        stroke-dasharray: 2, 4;
+      }
+      .boundary-line {
+        stroke: #10B981;
+        stroke-width: 1.5;
+        stroke-dasharray: 4, 4;
+      }
+      .label-main {
+        font-size: 12px;
+        fill: #E2E8F0;
+        font-weight: 600;
+      }
+      .label-sub {
+        font-size: 11px;
+        fill: #94A3B8;
+      }
+      .weight-label {
+        font-size: 14px;
+        fill: #64748B;
+        text-anchor: middle;
+      }
+      .row-label {
+        font-size: 12px;
+        fill: #94A3B8;
+      }
+      .legend-text {
+        font-size: 11px;
+        fill: #E2E8F0;
+      }
+    </style>
+
+    <!-- Reusable Templates -->
+    <circle id="dot" cx="0" cy="0" r="6" />
+    
+    <g id="row8">
+      <use href="#dot" x="0" />
+      <use href="#dot" x="25" />
+      <use href="#dot" x="50" />
+      <use href="#dot" x="75" />
+      <use href="#dot" x="100" />
+      <use href="#dot" x="125" />
+      <use href="#dot" x="150" />
+      <use href="#dot" x="175" />
+    </g>
+
+    <line id="grid-col" x1="0" y1="80" x2="0" y2="410" class="grid-line" />
+    
+    <!-- Brackets relative to their top-left start (x, y) -->
+    <path id="l1-bracket" d="M 10,0 L 0,0 L 0,115 L 10,115" class="bracket" />
+    <path id="l2-bracket" d="M 10,0 L 0,0 L 0,45 L 10,45" class="bracket" />
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0B0F19" rx="8" />
+
+  <!-- Legend -->
+  <g transform="translate(40, 30)">
+    <!-- Base 2 Legend -->
+    <rect x="0" y="0" width="12" height="12" fill="#38BDF8" rx="2" />
+    <rect x="15" y="0" width="12" height="12" fill="#34D399" rx="2" />
+    <rect x="30" y="0" width="12" height="12" fill="#A78BFA" rx="2" />
+    <rect x="45" y="0" width="12" height="12" fill="#F472B6" rx="2" />
+    <text x="65" y="10" class="legend-text">wallace_base2 (2-bit leaf multipliers)</text>
+  </g>
+
+  <!-- Weight Grid Lines (Col 0 to 14, MSB on left, LSB on right) -->
+  <g>
+    <text x="425" y="445" class="weight-label" font-size="11" fill="#475569">Partial Product Column Weights</text>
+    
+    <use href="#grid-col" x="250" /><text x="250" y="425" class="weight-label">2¹⁴</text>
+    <use href="#grid-col" x="275" /><text x="275" y="425" class="weight-label">2¹³</text>
+    <use href="#grid-col" x="300" /><text x="300" y="425" class="weight-label">2¹²</text>
+    <use href="#grid-col" x="325" /><text x="325" y="425" class="weight-label">2¹¹</text>
+    <use href="#grid-col" x="350" /><text x="350" y="425" class="weight-label">2¹⁰</text>
+    <use href="#grid-col" x="375" /><text x="375" y="425" class="weight-label">2⁹</text>
+    <use href="#grid-col" x="400" /><text x="400" y="425" class="weight-label">2⁸</text>
+    <use href="#grid-col" x="425" /><text x="425" y="425" class="weight-label">2⁷</text>
+    <use href="#grid-col" x="450" /><text x="450" y="425" class="weight-label">2⁶</text>
+    <use href="#grid-col" x="475" /><text x="475" y="425" class="weight-label">2⁵</text>
+    <use href="#grid-col" x="500" /><text x="500" y="425" class="weight-label">2⁴</text>
+    <use href="#grid-col" x="525" /><text x="525" y="425" class="weight-label">2³</text>
+    <use href="#grid-col" x="550" /><text x="550" y="425" class="weight-label">2²</text>
+    <use href="#grid-col" x="575" /><text x="575" y="425" class="weight-label">2¹</text>
+    <use href="#grid-col" x="600" /><text x="600" y="425" class="weight-label">2⁰</text>
+  </g>
+
+  <!-- Recursion Brackets -->
+  
+  <!-- Level 0: Input a (8 bits) -->
+  <path d="M 80,95 L 70,95 L 70,350 L 80,350" class="bracket" />
+  <line x1="70" y1="222.5" x2="60" y2="222.5" class="bracket" />
+  <text x="55" y="220" class="label-main" text-anchor="end">input a</text>
+  <text x="55" y="233" class="label-sub" text-anchor="end">(8 bits)</text>
+
+  <!-- Level 1: Split 1 (a0 / a1) -->
+  <use href="#l1-bracket" x="115" y="95" />
+  <line x1="115" y1="152.5" x2="105" y2="152.5" class="bracket" />
+  <text x="100" y="156" class="label-main" text-anchor="end">a0</text>
+  
+  <use href="#l1-bracket" x="115" y="235" />
+  <line x1="115" y1="292.5" x2="105" y2="292.5" class="bracket" />
+  <text x="100" y="296" class="label-main" text-anchor="end">a1</text>
+
+  <!-- Level 2: Split 2 (a00 / a01 / a10 / a11) -->
+  <use href="#l2-bracket" x="160" y="95" />
+  <text x="150" y="122" class="label-main" text-anchor="end">a00</text>
+
+  <use href="#l2-bracket" x="160" y="165" />
+  <text x="150" y="192" class="label-main" text-anchor="end">a01</text>
+
+  <use href="#l2-bracket" x="160" y="235" />
+  <text x="150" y="262" class="label-main" text-anchor="end">a10</text>
+
+  <use href="#l2-bracket" x="160" y="305" />
+  <text x="150" y="332" class="label-main" text-anchor="end">a11</text>
+
+  <!-- Boundary line indicating early halting -->
+  <line x1="185" y1="80" x2="185" y2="370" class="boundary-line" />
+  <text x="180" y="390" class="label-main" fill="#10B981" text-anchor="end">Recursion halts</text>
+  <text x="180" y="403" class="label-sub" fill="#34D399" text-anchor="end">wallace_base2 (2-bit leaf)</text>
+
+  <!-- Row Lines and Dots -->
+  
+  <!-- Row 0: i=0 (Group 0) -->
+  <g>
+    <line x1="190" y1="100" x2="425" y2="100" stroke="#38BDF8" opacity="0.3" stroke-width="1" />
+    <text x="625" y="104" class="row-label">a[0]·b</text>
+    <use href="#row8" x="425" y="100" fill="#38BDF8" />
+  </g>
+
+  <!-- Row 1: i=1 (Group 0) -->
+  <g>
+    <line x1="190" y1="135" x2="400" y2="135" stroke="#38BDF8" opacity="0.3" stroke-width="1" />
+    <text x="625" y="139" class="row-label">a[1]·b</text>
+    <use href="#row8" x="400" y="135" fill="#38BDF8" />
+  </g>
+
+  <!-- Row 2: i=2 (Group 1) -->
+  <g>
+    <line x1="190" y1="170" x2="375" y2="170" stroke="#34D399" opacity="0.3" stroke-width="1" />
+    <text x="625" y="174" class="row-label">a[2]·b</text>
+    <use href="#row8" x="375" y="170" fill="#34D399" />
+  </g>
+
+  <!-- Row 3: i=3 (Group 1) -->
+  <g>
+    <line x1="190" y1="205" x2="350" y2="205" stroke="#34D399" opacity="0.3" stroke-width="1" />
+    <text x="625" y="209" class="row-label">a[3]·b</text>
+    <use href="#row8" x="350" y="205" fill="#34D399" />
+  </g>
+
+  <!-- Row 4: i=4 (Group 2) -->
+  <g>
+    <line x1="190" y1="240" x2="325" y2="240" stroke="#A78BFA" opacity="0.3" stroke-width="1" />
+    <text x="625" y="244" class="row-label">a[4]·b</text>
+    <use href="#row8" x="325" y="240" fill="#A78BFA" />
+  </g>
+
+  <!-- Row 5: i=5 (Group 2) -->
+  <g>
+    <line x1="190" y1="275" x2="300" y2="275" stroke="#A78BFA" opacity="0.3" stroke-width="1" />
+    <text x="625" y="279" class="row-label">a[5]·b</text>
+    <use href="#row8" x="300" y="275" fill="#A78BFA" />
+  </g>
+
+  <!-- Row 6: i=6 (Group 3) -->
+  <g>
+    <line x1="190" y1="310" x2="275" y2="310" stroke="#F472B6" opacity="0.3" stroke-width="1" />
+    <text x="625" y="314" class="row-label">a[6]·b</text>
+    <use href="#row8" x="275" y="310" fill="#F472B6" />
+  </g>
+
+  <!-- Row 7: i=7 (Group 3) -->
+  <g>
+    <line x1="190" y1="345" x2="250" y2="345" stroke="#F472B6" opacity="0.3" stroke-width="1" />
+    <text x="625" y="349" class="row-label">a[7]·b</text>
+    <use href="#row8" x="250" y="345" fill="#F472B6" />
+  </g>
+</svg>
