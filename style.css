@@ -417,6 +417,32 @@ button:active {
     pointer-events: auto;
 }
 
+.hero-github-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.hero-github-badge:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
 .hero-overlay {
     position: absolute;
     bottom: 16px;
@@ -1146,6 +1172,14 @@ canvas {
         height: 65vh !important;
     }
 
+    .canvas-legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 6px 10px;
+        max-width: 65%;
+    }
+
     .hero-overlay {
         flex-direction: column;
         bottom: 0px;
@@ -1213,5 +1247,12 @@ canvas {
 
     h2 {
         font-size: 1.4rem;
+    }
+
+    .hero-github-badge {
+        top: 10px;
+        right: 10px;
+        padding: 4px 8px;
+        font-size: 10px;
     }
 }

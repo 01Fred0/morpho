@@ -100,8 +100,8 @@ export const HERO_DESIGNS = [
         key: 'chain',
         design: ['chain', [20, 20]],
         method: 'largest',
-        title: 'Not-Gate Chain',
-        desc: 'A linear cascade of Not gates resolving recursively in series.',
+        title: 'Not-Gate Chains',
+        desc: 'Parallel linear cascades of Not gates resolving recursively.',
         anchor: '#tubes-chains-and-trees',
         sim: false
     },

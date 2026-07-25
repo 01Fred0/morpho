@@ -30,7 +30,8 @@ export const CELL_STYLES = {
     'Maj3': { rgb: [1.0, 0.573, 0.169], label: 'M3', name: 'Maj3' },
     'carry_op': { rgb: [0.133, 0.722, 0.812], label: 'C', name: 'Carry' },
     'BUF': { rgb: [0.55, 0.6, 0.68], label: 'B', name: 'Buffer', scale: 0.5 },
-    'Mux2': { rgb: [0.15, 0.75, 0.45], label: 'Y', name: 'Mux2' }
+    'Mux2': { rgb: [0.15, 0.75, 0.45], label: 'Y', name: 'Mux2' },
+    'Not': { rgb: [0.95, 0.25, 0.55], label: '~', name: 'NOT' }
 };
 
 import { CELL_TYPES } from './compiler.js';
