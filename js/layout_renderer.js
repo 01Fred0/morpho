@@ -31,7 +31,12 @@ export const CELL_STYLES = {
     'carry_op': { rgb: [0.133, 0.722, 0.812], label: 'C', name: 'Carry' },
     'BUF': { rgb: [0.55, 0.6, 0.68], label: 'B', name: 'Buffer', scale: 0.5 },
     'Mux2': { rgb: [0.15, 0.75, 0.45], label: 'Y', name: 'Mux2' },
-    'Not': { rgb: [0.95, 0.25, 0.55], label: '~', name: 'NOT' }
+    'Not': { rgb: [0.95, 0.25, 0.55], label: '~', name: 'NOT' },
+    'A': { rgb: [0.1, 0.7, 0.3], label: 'A', name: 'Adenine' },
+    'T': { rgb: [0.9, 0.2, 0.2], label: 'T', name: 'Thymine' },
+    'C': { rgb: [0.2, 0.4, 0.9], label: 'C', name: 'Cytosine' },
+    'G': { rgb: [0.9, 0.7, 0.1], label: 'G', name: 'Guanine' },
+    'HBond': { rgb: [0.6, 0.6, 0.6], label: 'H', name: 'H-Bond', scale: 0.5 }
 };
 
 import { CELL_TYPES } from './compiler.js';

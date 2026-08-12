@@ -144,6 +144,25 @@ Xor  = LUT(2, 0b0110)
 Xor3 = LUT(3, 0b1001_0110)   # 3-input XOR (odd parity) for Sum
 Maj3 = LUT(3, 0b1110_1000)   # 3-input Majority logic for Carry Out
 
+# DNA primitives
+HBond = LUT(0, 1)
+A = LUT(2, 0)
+T = LUT(2, 0)
+C = LUT(2, 0)
+G = LUT(2, 0)
+
+@morpho
+def base_pair_AT(prev1, prev2, pair):
+    next1 = A(prev1, pair)
+    next2 = T(prev2, pair)
+    return next1, next2
+
+@morpho
+def base_pair_CG(prev1, prev2, pair):
+    next1 = C(prev1, pair)
+    next2 = G(prev2, pair)
+    return next1, next2
+
 @morpho                         # Base case cell (1-bit full adder)
 def full_adder(a, b, c_in):     # a: [1], b: [1], c_in: [1] -> sum: [1], c_out: [1]
     sum = Xor3(a, b, c_in)
@@ -344,6 +363,64 @@ def medusa(x, n):
     a = medusa_half(x, n)
     b = medusa_half(x, n)
     return a, b
+
+# DNA recursive presets
+@morpho(fallback=base_pair_AT)
+def duplex(prev1, prev2, pair):
+    prev1_0, prev1_1 = SPLIT(prev1)
+    prev2_0, prev2_1 = SPLIT(prev2)
+    pair_0, pair_1 = SPLIT(pair)
+    next1_mid, next2_mid = duplex(prev1_0, prev2_0, pair_0)
+    next1_out, next2_out = duplex(next1_mid, next2_mid, pair_1)
+    return next1_out, next2_out
+
+@morpho
+def hairpin(prev, pair):
+    stem1, rest = SPLIT(prev)
+    loop, stem2 = SPLIT(rest)
+    pair_stem, _ = SPLIT(pair)
+    next1, next2 = duplex(stem1, stem2, pair_stem)
+    return CAT(next1, loop, next2)
+
+@morpho
+def junction_4arm(prev1, prev2, prev3, prev4, pair):
+    p1_0, p1_1 = SPLIT(prev1)
+    p2_0, p2_1 = SPLIT(prev2)
+    p3_0, p3_1 = SPLIT(prev3)
+    p4_0, p4_1 = SPLIT(prev4)
+
+    pair1, pair2 = SPLIT(pair)
+    pair1_0, pair1_1 = SPLIT(pair1)
+    pair2_0, pair2_1 = SPLIT(pair2)
+
+    n1_0, n2_1 = duplex(p1_0, p2_1, pair1_0)
+    n2_0, n3_1 = duplex(p2_0, p3_1, pair1_1)
+    n3_0, n4_1 = duplex(p3_0, p4_1, pair2_0)
+    n4_0, n1_1 = duplex(p4_0, p1_1, pair2_1)
+
+    return CAT(n1_0, n1_1), CAT(n2_0, n2_1), CAT(n3_0, n3_1), CAT(n4_0, n4_1)
+
+@morpho
+def helix_bundle(prev1, prev2, prev3, pair):
+    p1_0, p1_1 = SPLIT(prev1)
+    p2_0, p2_1 = SPLIT(prev2)
+    p3_0, p3_1 = SPLIT(prev3)
+    pair0, pair1 = SPLIT(pair)
+
+    n1_0, n2_0 = duplex(p1_0, p2_0, pair0)
+    n2_1, n3_1 = duplex(p2_1, p3_1, pair1)
+
+    return CAT(n1_0, p1_1), CAT(n2_0, n2_1), CAT(p3_0, n3_1)
+
+@morpho
+def scaffold_staple_tile(scaffold, staple1, staple2, pair):
+    scaf0, scaf1 = SPLIT(scaffold)
+    pair0, pair1 = SPLIT(pair)
+
+    n_scaf0, n_stap1 = duplex(scaf0, staple1, pair0)
+    n_scaf1, n_stap2 = duplex(scaf1, staple2, pair1)
+
+    return CAT(n_scaf0, n_scaf1), n_stap1, n_stap2
 
 # MORPHO_END
 #@MARK: Circuit Runner
@@ -547,6 +624,145 @@ class CircuitCompiler:
         if isinstance(self.outputs, tuple):
             return tuple(vals[out_idx] for out_idx in self.outputs)
         return vals[self.outputs]
+
+    def analyze_dna(self):
+        # 1. Identify all base cells (nucleotides)
+        base_indices = []
+        for i, op in enumerate(self.ops):
+            if op.type == 'GATE' and op.name in ('A', 'T', 'C', 'G'):
+                base_indices.append(i)
+
+        # 2. Trace strands via covalent connections
+        pred = {}  # successor -> predecessor
+        succ = {}  # predecessor -> successor
+
+        for idx in base_indices:
+            op = self.ops[idx]
+            if len(op.args) > 0:
+                prev_net = op.args[0]
+                if prev_net in base_indices:
+                    pred[idx] = prev_net
+                    succ[prev_net] = idx
+
+        # Find start of strands (bases in base_indices with no predecessor in base_indices)
+        starts = [idx for idx in base_indices if idx not in pred]
+
+        strands = []
+        strand_map = {} # base_idx -> strand_id
+        base_pos_in_strand = {} # base_idx -> position
+
+        for strand_id, start in enumerate(starts):
+            curr_strand = []
+            curr = start
+            pos = 0
+            while curr is not None:
+                curr_strand.append(curr)
+                strand_map[curr] = strand_id
+                base_pos_in_strand[curr] = pos
+                pos += 1
+                curr = succ.get(curr)
+            strands.append(curr_strand)
+
+        # 3. Find paired bases via hydrogen bonds (shared HBond nets)
+        h_bond_groups = {} # net_idx -> list of base_idx
+        for idx in base_indices:
+            op = self.ops[idx]
+            if len(op.args) > 1:
+                pair_net = op.args[1]
+                if pair_net is not None:
+                    h_bond_groups.setdefault(pair_net, []).append(idx)
+
+        pairs = {} # base_idx -> base_idx
+        for net_idx, group in h_bond_groups.items():
+            if len(group) == 2:
+                u, v = group[0], group[1]
+                pairs[u] = v
+                pairs[v] = u
+
+        # 4. Scoring and penalties
+        penalties = []
+        total_penalty = 0.0
+
+        # Complementarity checks
+        mismatch_count = 0
+        correct_complements = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        for u, v in pairs.items():
+            if u < v:
+                type_u = self.ops[u].name
+                type_v = self.ops[v].name
+                if correct_complements.get(type_u) != type_v:
+                    mismatch_count += 1
+                    penalties.append(f"Mismatch: Base #{u} ({type_u}) paired with Base #{v} ({type_v})")
+                    total_penalty += 1.0
+
+        # Polarity checks
+        parallel_pairs = 0
+        for u, v in pairs.items():
+            if u < v:
+                strand_u = strand_map.get(u)
+                strand_v = strand_map.get(v)
+                if strand_u is not None and strand_v is not None and strand_u != strand_v:
+                    pos_u = base_pos_in_strand[u]
+                    pos_v = base_pos_in_strand[v]
+                    succ_u = succ.get(u)
+                    if succ_u in pairs:
+                        pair_succ_u = pairs[succ_u]
+                        if pair_succ_u in base_pos_in_strand:
+                            pos_pair_succ_u = base_pos_in_strand[pair_succ_u]
+                            if pos_pair_succ_u > pos_v:
+                                parallel_pairs += 1
+                                penalties.append(f"Parallel Polarity: Base #{u} and successor Base #{succ_u} pair with Base #{v} and successor Base #{pair_succ_u}")
+                                total_penalty += 0.5
+
+        # Continuity check
+        isolated_count = sum(1 for s in strands if len(s) == 1)
+        if isolated_count > 0:
+            penalties.append(f"Continuity violation: {isolated_count} isolated single bases detected")
+            total_penalty += isolated_count * 2.0
+
+        # Steric Clash Heuristic & coordinates
+        coords = {}
+        for s_id, s in enumerate(strands):
+            for idx, base in enumerate(s):
+                if base in pairs:
+                    theta = idx * 0.6
+                    r = 1.0
+                    z = idx * 0.34
+                    if s_id % 2 == 0:
+                        coords[base] = (r * np.cos(theta), r * np.sin(theta), z)
+                    else:
+                        coords[base] = (r * np.cos(theta + np.pi), r * np.sin(theta + np.pi), z)
+                else:
+                    theta = idx * 0.6
+                    coords[base] = (1.5 * np.cos(theta), 1.5 * np.sin(theta), idx * 0.34)
+
+        clash_count = 0
+        base_indices_list = list(base_indices)
+        for i in range(len(base_indices_list)):
+            for j in range(i + 1, len(base_indices_list)):
+                u, v = base_indices_list[i], base_indices_list[j]
+                if pairs.get(u) != v:
+                    p_u = coords.get(u, (0, 0, 0))
+                    p_v = coords.get(v, (0, 0, 0))
+                    dist = np.sqrt((p_u[0]-p_v[0])**2 + (p_u[1]-p_v[1])**2 + (p_u[2]-p_v[2])**2)
+                    if dist < 0.4:
+                        clash_count += 1
+                        total_penalty += 1.0
+
+        if clash_count > 0:
+            penalties.append(f"Steric clash: {clash_count} non-paired base collisions (< 0.4 nm)")
+
+        assembly_complexity = len(strands) * 10.0 + len(base_indices) * 0.1
+
+        return {
+            'strands': strands,
+            'strand_map': strand_map,
+            'pairs': pairs,
+            'penalties': penalties,
+            'total_penalty': total_penalty,
+            'assembly_complexity': assembly_complexity,
+            'coords': coords
+        }
 
     def report(self):
         lines = [
@@ -841,6 +1057,45 @@ def test_triangle():
         assert (comp_out == expected).all(), f"Compiled triangle failed for width {width}"
     print("All triangle tests passed successfully!")
 
+def test_dna_domain():
+    @morpho
+    def tiny_duplex(prev1, prev2, pair):
+        prev1_0, prev1_1 = SPLIT(prev1)
+        prev2_0, prev2_1 = SPLIT(prev2)
+        pair_0, pair_1 = SPLIT(pair)
+
+        mid1, mid2 = base_pair_AT(prev1_0, prev2_0, pair_0)
+        out1, out2 = base_pair_CG(mid1, mid2, pair_1)
+
+        return CAT(out1), CAT(out2)
+
+    comp = compile(tiny_duplex, (2, 2, 2), optimize=False)
+    report = comp.analyze_dna()
+
+    assert len(report['strands']) == 2, f"Expected 2 strands, got {len(report['strands'])}"
+    assert len(report['pairs']) == 4, f"Expected 4 paired bases (2 pairs), got {len(report['pairs'])}"
+    # Expect 1 parallel polarity penalty as they are parallel
+    assert len(report['penalties']) == 1, f"Expected 1 polarity penalty, got: {report['penalties']}"
+    assert report['total_penalty'] == 0.5, f"Expected 0.5 penalty, got {report['total_penalty']}"
+
+    @morpho
+    def mismatch_duplex(prev1, prev2, pair):
+        prev1_0, prev1_1 = SPLIT(prev1)
+        prev2_0, prev2_1 = SPLIT(prev2)
+        pair_0, pair_1 = SPLIT(pair)
+
+        mid1 = A(prev1_0, pair_0)
+        mid2 = A(prev2_0, pair_0)
+        out1, out2 = base_pair_CG(mid1, mid2, pair_1)
+        return CAT(out1), CAT(out2)
+
+    comp_mis = compile(mismatch_duplex, (2, 2, 2), optimize=False)
+    report_mis = comp_mis.analyze_dna()
+    assert report_mis['total_penalty'] > 0.0, "Expected a penalty for AA mismatch"
+    assert any("Mismatch" in p for p in report_mis['penalties']), "Expected Mismatch in penalties list"
+
+    print("All DNA invariant and penalty tests passed successfully!")
+
 if __name__ == "__main__":
     test_reduction()
     test_optimize()
@@ -848,6 +1103,7 @@ if __name__ == "__main__":
     test_shifter()
     test_grid_skip()
     test_triangle()
+    test_dna_domain()
 
     for name, f, op in [
         ("Ripple Adder", ripple_adder, '+'),

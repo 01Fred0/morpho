@@ -14,6 +14,41 @@
 
 export const HERO_DESIGNS = [
     {
+        key: 'duplex',
+        design: ['duplex', [16, 16, 16]],
+        title: 'DNA Double Helix Duplex',
+        desc: '16-base pair DNA duplex structure built recursively.',
+        sim: false
+    },
+    {
+        key: 'hairpin',
+        design: ['hairpin', [16, 8]],
+        title: 'DNA Hairpin Loop',
+        desc: 'A single DNA strand folding back onto itself to form a stem-loop.',
+        sim: false
+    },
+    {
+        key: 'junction_4arm',
+        design: ['junction_4arm', [8, 8, 8, 8, 16]],
+        title: 'DNA Four-Arm Junction',
+        desc: 'Holliday junction structure created recursively with 4 arms.',
+        sim: false
+    },
+    {
+        key: 'helix_bundle',
+        design: ['helix_bundle', [16, 16, 16, 16]],
+        title: 'DNA Helix Bundle',
+        desc: '3 parallel helices bundled together with recursive crossovers.',
+        sim: false
+    },
+    {
+        key: 'scaffold_staple_tile',
+        design: ['scaffold_staple_tile', [32, 16, 16, 32]],
+        title: 'DNA Scaffold/Staple Tile',
+        desc: 'Long scaffold strand folded by shorter helper staple strands.',
+        sim: false
+    },
+    {
         key: 'brent_kung',
         design: ['brent_kung_adder', [32, 32, 1]],
         title: 'Brent–Kung Parallel Prefix Adder',

@@ -263,6 +263,65 @@ function updateStatsLoop() {
             previousActive[i] = isActive;
         }
     }
+
+    // Update Assembly Planner Report
+    const reportEl = document.getElementById('assembly-planner-report');
+    if (reportEl && viewer.dnaReport && viewer.dnaReport.baseCount > 0) {
+        const report = viewer.dnaReport;
+        let html = `<strong>=== ASSEMBLY PLAN & REPORT ===</strong><br>`;
+        html += `Bases: ${report.baseCount} | Strands: ${report.strandsCount} | Pairs: ${report.pairsCount}<br>`;
+        html += `Validation Score: <span style="color: ${report.totalPenalty === 0 ? '#48bb78' : '#f56565'}">${(100 - report.totalPenalty * 10).toFixed(1)}%</span><br>`;
+        html += `Complexity Score: ${report.assemblyComplexity.toFixed(1)}<br><br>`;
+
+        if (report.penalties.length > 0) {
+            html += `<span style="color: #f56565"><strong>Warnings/Errors (${report.penalties.length}):</strong></span><br>`;
+            report.penalties.slice(0, 5).forEach(p => {
+                html += `- ${p}<br>`;
+            });
+            if (report.penalties.length > 5) html += `- ...and ${report.penalties.length - 5} more<br>`;
+            html += `<br>`;
+        } else {
+            html += `<span style="color: #48bb78"><strong>✓ Validation PASS: 100% Perfect Design!</strong></span><br><br>`;
+        }
+
+        html += `<strong>Strand Decomposition & Sequences:</strong><br>`;
+        report.strands.forEach((strand, id) => {
+            const seq = strand.map(idx => viewer.graph.cell.name[idx]).join('');
+            const role = id === 0 ? 'Scaffold' : 'Staple';
+            html += `Strand #${id} (${role}, ${strand.length}nt):<br>`;
+            html += `<span style="color: #63b3ed; word-break: break-all;">5'-${seq}-3'</span><br>`;
+        });
+
+        html += `<br><strong>Scaffold/Staple Routing:</strong><br>`;
+        if (report.strandsCount > 1) {
+            report.strands.forEach((strand, id) => {
+                if (id > 0) {
+                    const pairings = [];
+                    strand.forEach((idx, pos) => {
+                        const partner = report.pairs[idx];
+                        if (partner !== -1) {
+                            pairings.push(`${pos}➔Scaf:${viewer.graph.cell.dnaStrandId[partner] || 0}`);
+                        }
+                    });
+                    if (pairings.length > 0) {
+                        html += `Staple #${id} pairing routes:<br>${pairings.join(', ')}<br>`;
+                    }
+                }
+            });
+        } else {
+            html += `No staple strands present to route.<br>`;
+        }
+
+        html += `<br><strong>Ordered Assembly Steps:</strong><br>`;
+        html += `1. Aliquot Strands to final concentrations (10 nM Scaffold, 100 nM each Staple).<br>`;
+        html += `2. Buffer with 1x TAE containing 12.5 mM Mg2+.<br>`;
+        html += `3. Thermal anneal: Heat to 90°C for 2 min, cool to 20°C at -1.0°C/min.<br>`;
+        html += `4. Purify via 1% agarose gel extraction or spin-filter filtration.<br>`;
+
+        reportEl.innerHTML = html;
+    } else if (reportEl) {
+        reportEl.innerHTML = `No DNA structure loaded. Select a DNA preset to begin planning.`;
+    }
     
     setTimeout(updateStatsLoop, 500);
 }
@@ -447,7 +506,8 @@ function compileAndRun() {
     
     try {
         const ast = parse(editorCode);
-        compileModule(ast, rootName, signature, true, 4);
+        const isDNA = ['duplex', 'hairpin', 'junction_4arm', 'helix_bundle', 'scaffold_staple_tile'].includes(rootName);
+        compileModule(ast, rootName, signature, !isDNA, isDNA ? null : 4);
         
         showCompileError(null);
         code = editorCode;
@@ -502,6 +562,16 @@ selectVisibility.onchange = () => {
         viewer.visibility = visibility;
     }
 };
+
+const selectDnaMode = document.getElementById('select-dna-mode');
+if (selectDnaMode) {
+    selectDnaMode.onchange = () => {
+        if (viewer) {
+            viewer.dnaMode = selectDnaMode.value;
+            viewer.needsTextureUpdate = true;
+        }
+    };
+}
 
 rangeSpeed.oninput = () => {
     autoExpandSpeed = parseInt(rangeSpeed.value, 10);

@@ -66,7 +66,17 @@ const CELL_SCHEMA = {
     // Time when the first input signal arrives at this cell
     firstTime: [Float32Array, 0],
     // Time when the last input signal arrives at this cell
-    lastTime: [Float32Array, 0]
+    lastTime: [Float32Array, 0],
+
+    // DNA Domain Fields
+    dnaStrandId: [Int32Array, -1],
+    dnaBaseType: [Uint8Array, 0],         // 0: None, 1: A, 2: T, 3: C, 4: G
+    dnaPolarity: [Int8Array, 0],          // 1: 5'->3', -1: 3'->5', 0: None
+    dnaComplementPartner: [Int32Array, -1], // Cell index of pairing partner
+    dnaX: [Float32Array, 0],
+    dnaY: [Float32Array, 0],
+    dnaZ: [Float32Array, 0],
+    dnaPenalty: [Float32Array, 0]
 };
 
 // Memory Layout: Pins (Logical Input Terminals only)
@@ -91,7 +101,9 @@ const NET_SCHEMA = {
     // Driving cell index, or -1 if driven by constant / global input
     driverCell: [Int32Array, -1],
     // Number of destination input pins connected to this net
-    fanout: [Int32Array, 0]
+    fanout: [Int32Array, 0],
+    // DNA Bond kind: 0: None, 1: Covalent, 2: Hydrogen, 3: Crossover
+    dnaBondKind: [Uint8Array, 0]
 };
 
 class CompiledGraph {
@@ -701,6 +713,18 @@ class CompiledGraph {
         this.cell.lutArity[c] = srcGraph.cell.lutArity[srcCellIdx];
         this.cell.def[c] = srcGraph.cell.def[srcCellIdx];
         this.cell.parent[c] = parentCellIdx;
+
+        // Clone DNA Metadata if it exists
+        if (srcGraph.cell.dnaStrandId) {
+            this.cell.dnaStrandId[c] = srcGraph.cell.dnaStrandId[srcCellIdx];
+            this.cell.dnaBaseType[c] = srcGraph.cell.dnaBaseType[srcCellIdx];
+            this.cell.dnaPolarity[c] = srcGraph.cell.dnaPolarity[srcCellIdx];
+            this.cell.dnaComplementPartner[c] = srcGraph.cell.dnaComplementPartner[srcCellIdx];
+            this.cell.dnaX[c] = srcGraph.cell.dnaX[srcCellIdx];
+            this.cell.dnaY[c] = srcGraph.cell.dnaY[srcCellIdx];
+            this.cell.dnaZ[c] = srcGraph.cell.dnaZ[srcCellIdx];
+            this.cell.dnaPenalty[c] = srcGraph.cell.dnaPenalty[srcCellIdx];
+        }
         return c;
     }
 

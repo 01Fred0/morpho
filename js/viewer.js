@@ -15,6 +15,7 @@
 import { parse } from './parser.js';
 import { compileModule, CELL_TYPES } from './compiler.js';
 import { Grower } from './grower.js';
+import { analyzeDNA } from './dna_analyzer.js';
 import { clamp } from './utils.js';
 import {
     MAX_GL_NODES,
@@ -83,6 +84,9 @@ export class MorphoViewer {
         this.panX = this.initPanX;
         this.panY = this.initPanY;
         this.zoom = this.initZoom;
+
+        this.dnaMode = 'circuits'; // 'circuits' | 'topological' | 'helical' | 'assembly'
+        this.dnaReport = null;
 
         this.nodesData = new Float32Array(MAX_GL_NODES * 12);
         this.linksData = new Float32Array(MAX_GL_LINKS * 8);
@@ -394,7 +398,8 @@ export class MorphoViewer {
     init(code) {
         this.code = code;
         const ast = parse(code);
-        const { createRoot } = compileModule(ast, this.designName, this.designInputs, true, 4);
+        const isDNA = ['duplex', 'hairpin', 'junction_4arm', 'helix_bundle', 'scaffold_staple_tile'].includes(this.designName);
+        const { createRoot } = compileModule(ast, this.designName, this.designInputs, !isDNA, isDNA ? null : 4);
 
         this.graph = createRoot();
         this.grower = new Grower(this.graph, true);
@@ -643,19 +648,56 @@ export class MorphoViewer {
     }
 
     _updateWebGLBuffers() {
+        // Run DNA analysis dynamically to ensure it is in sync
+        this.dnaReport = analyzeDNA(this.graph);
+
+        let xToUse = this.smoothedX;
+        let yToUse = this.smoothedY;
+
+        if (this.dnaMode && this.dnaMode !== 'circuits' && this.dnaReport) {
+            const customX = new Float32Array(this.graph.cell.count);
+            const customY = new Float32Array(this.graph.cell.count);
+            const strands = this.dnaReport.strands;
+
+            strands.forEach((s, strandId) => {
+                s.forEach((baseIdx, pos) => {
+                    if (this.dnaMode === 'topological') {
+                        customX[baseIdx] = pos * 3.0 - (s.length * 1.5);
+                        customY[baseIdx] = strandId * 4.0 - (strands.length * 2.0);
+                    } else if (this.dnaMode === 'helical') {
+                        const rotAngle = (performance.now() * 0.001) + (pos * 0.6);
+                        const radius = 2.0;
+                        if (strandId % 2 === 0) {
+                            customX[baseIdx] = radius * Math.cos(rotAngle);
+                            customY[baseIdx] = pos * 1.5 + radius * Math.sin(rotAngle) - (s.length * 0.75);
+                        } else {
+                            customX[baseIdx] = radius * Math.cos(rotAngle + Math.PI);
+                            customY[baseIdx] = pos * 1.5 + radius * Math.sin(rotAngle + Math.PI) - (s.length * 0.75);
+                        }
+                    } else if (this.dnaMode === 'assembly') {
+                        customX[baseIdx] = pos * 3.0 - (s.length * 1.5) + (strandId * 1.5);
+                        customY[baseIdx] = strandId * 6.0 - (strands.length * 3.0);
+                    }
+                });
+            });
+
+            xToUse = customX;
+            yToUse = customY;
+        }
+
         this.glNodeCount = packNodes(
             this.graph,
             this.grower.layout.node.r,
-            this.smoothedX,
-            this.smoothedY,
+            xToUse,
+            yToUse,
             this.activeCellId,
             this.activeDescendants,
             this.nodesData
         );
         this.glLinkCount = packLinks(
             this.graph,
-            this.smoothedX,
-            this.smoothedY,
+            xToUse,
+            yToUse,
             this.activeCellId,
             this.activeDescendants,
             this.linksData
