@@ -64,6 +64,24 @@
                 <button id="btn-simulate" class="demo-btn btn-accent">Run Logic Simulation</button>
             </div>
 
+            <div id="dna-controls" class="demo-section">
+                <div class="demo-section-title">DNA Domain Controls</div>
+                <div class="demo-row">
+                    <label for="select-dna-mode">View Mode:</label>
+                    <select id="select-dna-mode" class="demo-select">
+                        <option value="circuits" selected>Circuit Layout</option>
+                        <option value="topological">Topological Mode</option>
+                        <option value="helical">Helical Mode</option>
+                        <option value="assembly">Assembly Mode</option>
+                    </select>
+                </div>
+                <div class="demo-divider"></div>
+                <div class="demo-section-title">Assembly Planner</div>
+                <div id="assembly-planner-report" style="font-family: monospace; font-size: 11px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; max-height: 250px; overflow-y: auto; color: #a0aec0; line-height: 1.4;">
+                    No DNA structure loaded.
+                </div>
+            </div>
+
             <div id="tree-resizer"></div>
 
             <div id="tree-section">

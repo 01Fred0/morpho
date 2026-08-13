@@ -1,17 +1,18 @@
 # MorphoHDL
 
-**A minimalistic language for growing circuits through structural recursion.**
+**A minimalistic language for growing circuits and biological nanostructures through structural recursion.**
 
-MorphoHDL is an experimental Hardware Description Language (HDL) and graph rewrite system built around recursive division and rewiring of cell definitions. Inspired by Parametric L-Systems and functional HDLs, MorphoHDL grows physical geometry and logical circuit structures concurrently without hardcoded bus widths.
+MorphoHDL is an experimental Hardware Description Language (HDL), graph rewrite system, and DNA nanostructure planner built around recursive division and rewiring of cell definitions. Inspired by Parametric L-Systems and functional HDLs, MorphoHDL grows physical geometry, logical circuit structures, and DNA nanostructures concurrently.
 
 ---
 
 ## 🌟 Key Features
 
-* **Recursive & Size-Agnostic**: Cells define rewrite rules where nodes are dynamically replaced by subcells. Bus widths are inferred and split automatically at runtime.
-* **High-Performance SoA Engine**: The core compiler (`js/compiler.js`) utilizes a Struct-of-Arrays (SoA) flat memory layout for maximum cache locality and performance.
-* **Interactive WebGL Explorer**: Integrated interactive viewer (`demo.html`) powered by SwissGL and Canvas 2D for real-time visualization of circuit growth, force-directed layouts, and signal propagation.
-* **Rich Library of Primitives**: Includes classical boolean circuits (parallel prefix adders, multipliers, logarithmic shifters) and biological/cellular automata structures.
+* **Dual-Domain Execution**: Supports both recursive digital circuit synthesis and recursive DNA origami / structural nanotechnology design.
+* **Recursive & Size-Agnostic**: Cells define rewrite rules where nodes are dynamically replaced by subcells or nucleotides. Bus widths/backbones are inferred and split automatically at runtime.
+* **High-Performance SoA Engine**: The core compiler utilizes a Struct-of-Arrays (SoA) flat memory layout for maximum cache locality, high speed, and minimal GC overhead.
+* **Lightweight DNA Validation & Assembly Planner**: Features real-time, non-topological verification of strand complementarity, antiparallel polarity, sequence continuity, steric clash heuristics, and thermal annealing assembly planning.
+* **Interactive WebGL Explorer**: Integrated real-time viewer (`demo.html`) supporting classic circuit timing waves, DNA topological grids, 3D double helices, and separated assembly exploded views.
 
 ---
 
